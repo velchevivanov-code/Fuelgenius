@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="bg" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0A0E1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="FuelGenius - fuel consumption calculator and trip cost planner with offline support.">
+<meta name="privacy-policy" content="privacy.html">
+<meta name="terms-of-use" content="terms.html">
+<meta name="robots" content="index,follow">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<title>FuelGenius</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<!-- Splash -->
+<div id="splash" class="splash">
+    <div class="splash-inner">
+        <div class="splash-gauge">
+            <svg viewBox="0 0 120 120" class="gauge-svg">
+                <defs>
+                    <linearGradient id="gaugeGradSplash" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00F5A0"/>
+                        <stop offset="100%" stop-color="#00D9F5"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="50" class="gauge-track"/>
+                <circle cx="60" cy="60" r="50" class="gauge-fill"/>
+            </svg>
+            <div class="gauge-drop">💧</div>
+        </div>
+        <h1 class="splash-brand">Fuel<span>Genius</span></h1>
+        <p class="splash-tag" data-i18n="splash_subtitle">Шофирай умно. Спестявай повече.</p>
+        <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+    </div>
+</div>
+
+<!-- App -->
+<div id="app" class="app">
+    <header class="hdr">
+        <div class="hdr-row">
+            <div class="hdr-brand">
+                <span class="hdr-icon">💧</span>
+                <span class="hdr-name">Fuel<strong>Genius</strong></span>
+            </div>
+            <div class="hdr-actions">
+                <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">
+                    <span id="themeIcon">☀️</span>
+                </button>
+                <button class="lang-btn" id="langToggle" aria-label="Switch language">
+                    <span id="langFlag">🇧🇬</span>
+                    <span id="langCode">BG</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav" id="mainNav">
+        <button class="nav-pill active" data-tab="calculator">
+            <span class="nav-ico">⛽</span>
+            <span data-i18n="nav_calc">Калкулатор</span>
+        </button>
+        <button class="nav-pill" data-tab="trip">
+            <span class="nav-ico">🗺️</span>
+            <span data-i18n="nav_trip">Пътуване</span>
+        </button>
+        <button class="nav-pill" data-tab="history">
+            <span class="nav-ico">📊</span>
+            <span data-i18n="nav_history">История</span>
+        </button>
+        <div class="nav-indicator" id="navIndicator"></div>
+    </nav>
+
+    <!-- CALCULATOR -->
+    <section id="calculator" class="tab active">
+        <div class="hero-gauge" id="heroGauge">
+            <svg viewBox="0 0 200 200" class="hg-svg">
+                <defs>
+                    <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00F5A0"/>
+                        <stop offset="100%" stop-color="#00D9F5"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="100" cy="100" r="85" class="hg-track"/>
+                <circle cx="100" cy="100" r="85" class="hg-fill" id="heroFill"/>
+            </svg>
+            <div class="hg-center">
+                <span class="hg-value" id="heroValue">--</span>
+                <span class="hg-unit" data-i18n="res_per100">л/100км</span>
+            </div>
+            <div class="hg-label" data-i18n="hero_label">Еко рейтинг</div>
+        </div>
+
+        <div class="glass-card">
+            <div class="card-header">
+                <h2 data-i18n="calc_title">Ново зареждане</h2>
+                <span class="card-badge">⛽</span>
+            </div>
+            <div class="field-group">
+                <div class="field">
+                    <label data-i18n="calc_distance">Изминати километри</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📏</span>
+                        <input type="number" id="distance" placeholder="450" inputmode="decimal" min="0.1" step="any">
+                        <span class="input-unit" data-i18n="unit_km">км</span>
+                    </div>
+                    <div class="field-error" id="distanceError"></div>
+                </div>
+                <div class="field">
+                    <label data-i18n="calc_fuel">Заредено гориво</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">⛽</span>
+                        <input type="number" id="fuel" placeholder="35" inputmode="decimal" min="0.1" step="any">
+                        <span class="input-unit" data-i18n="unit_liters">литра</span>
+                    </div>
+                    <div class="field-error" id="fuelError"></div>
+                </div>
+                <div class="field">
+                    <label data-i18n="calc_price">Цена на литър (по избор)</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">💰</span>
+                        <input type="number" id="price" placeholder="2.85" step="0.01" inputmode="decimal" min="0">
+                        <span class="input-unit" id="currencyUnit">лв</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-calc" id="calculateBtn">
+                <span data-i18n="calc_btn">Изчисли разхода</span>
+                <span class="btn-calc-arrow">→</span>
+            </button>
+        </div>
+
+        <div class="hidden" id="results">
+            <div class="results-row">
+                <div class="res-card glow-green">
+                    <span class="rc-label" data-i18n="res_per100">л/100км</span>
+                    <span class="rc-val" id="per100">--</span>
+                </div>
+                <div class="res-card">
+                    <span class="rc-label" id="resCost100Label">лв/100км</span>
+                    <span class="rc-val" id="cost100">--</span>
+                </div>
+            </div>
+            <div class="results-row">
+                <div class="res-card">
+                    <span class="rc-label" id="resTotalLabel">Общо</span>
+                    <span class="rc-val" id="totalCost">--</span>
+                </div>
+                <div class="res-card">
+                    <span class="rc-label" id="resPerKmLabel">лв/км</span>
+                    <span class="rc-val" id="perKm">--</span>
+                </div>
+            </div>
+            <div class="info-strip" id="comparison"></div>
+            <div class="tip-strip" id="tip"></div>
+            <button class="btn-save" id="saveBtn">
+                <span data-i18n="save_btn">💾 Запази записа</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- TRIP -->
+    <section id="trip" class="tab">
+        <div class="glass-card">
+            <div class="card-header">
+                <h2 data-i18n="trip_title">Планирай пътуване</h2>
+                <span class="card-badge">🗺️</span>
+            </div>
+            <p class="card-sub" data-i18n="trip_subtitle">Изчисли разходите и раздели с приятели</p>
+            <div class="field-group">
+                <div class="field">
+                    <label data-i18n="trip_distance">Разстояние</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🛣️</span>
+                        <input type="number" id="tripDist" placeholder="500" inputmode="decimal" min="0.1">
+                        <span class="input-unit" data-i18n="unit_km">км</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label data-i18n="trip_consumption">Разход</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">⛽</span>
+                        <input type="number" id="tripCons" placeholder="7.5" step="0.1" inputmode="decimal" min="0.1">
+                        <span class="input-unit" data-i18n="unit_l100">л/100км</span>
+                    </div>
+                    <button class="link-btn" id="useAvgBtn" data-i18n="trip_use_avg">📊 Ползвай моя среден</button>
+                </div>
+                <div class="field">
+                    <label data-i18n="trip_price">Цена на литър</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">💰</span>
+                        <input type="number" id="tripPrice" placeholder="2.85" step="0.01" inputmode="decimal" min="0.01">
+                        <span class="input-unit" id="tripCurrencyUnit">лв</span>
+                    </div>
+                </div>
+                <div class="field">
+                    <label data-i18n="trip_passengers">Брой пътници</label>
+                    <div class="pass-row">
+                        <button class="pass-chip" data-val="1">1</button>
+                        <button class="pass-chip active" data-val="2">2</button>
+                        <button class="pass-chip" data-val="3">3</button>
+                        <button class="pass-chip" data-val="4">4</button>
+                        <button class="pass-chip" data-val="5">5+</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-calc" id="calcTripBtn">
+                <span data-i18n="trip_calc_btn">Изчисли пътуването</span>
+                <span class="btn-calc-arrow">→</span>
+            </button>
+        </div>
+        <div class="hidden" id="tripResults">
+            <div class="trip-tile"><div class="tt-icon">⛽</div><div class="tt-info"><span class="tt-label" data-i18n="trip_fuel_needed">Нужно гориво</span><span class="tt-val" id="tripFuel">--</span></div></div>
+            <div class="trip-tile"><div class="tt-icon">💵</div><div class="tt-info"><span class="tt-label" data-i18n="trip_one_way">Една посока</span><span class="tt-val" id="tripOne">--</span></div></div>
+            <div class="trip-tile accent"><div class="tt-icon">👤</div><div class="tt-info"><span class="tt-label" data-i18n="trip_per_person">На човек</span><span class="tt-val" id="tripPerson">--</span></div></div>
+            <div class="trip-tile"><div class="tt-icon">↔️</div><div class="tt-info"><span class="tt-label" data-i18n="trip_round">Отиване + Връщане</span><span class="tt-val" id="tripRound">--</span></div></div>
+        </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="history" class="tab">
+        <div class="stats-row">
+            <div class="stat-tile"><span class="st-val" id="avgCons">--</span><span class="st-lbl" data-i18n="stats_avg">Среден разход</span></div>
+            <div class="stat-tile"><span class="st-val" id="totalSpent">--</span><span class="st-lbl" data-i18n="stats_spent">Похарчено</span></div>
+            <div class="stat-tile"><span class="st-val" id="totalKm">--</span><span class="st-lbl" data-i18n="stats_km">Километри</span></div>
+            <div class="stat-tile"><span class="st-val" id="totalRecs">0</span><span class="st-lbl" data-i18n="stats_records">Записи</span></div>
+        </div>
+        <div class="history-bar">
+            <h3 data-i18n="history_title">Записи</h3>
+            <div class="history-bar-actions">
+                <button class="btn-ghost-export" id="exportBtn" data-i18n="export_btn">📥 Експорт CSV</button>
+                <button class="btn-ghost-danger" id="clearBtn" data-i18n="history_clear">Изтрий всички</button>
+            </div>
+        </div>
+        <div class="history-feed" id="historyList">
+            <div class="empty-state"><div class="empty-icon">📝</div><p data-i18n="history_empty">Няма записи</p></div>
+        </div>
+    </section>
+
+    <!-- Delete Modal -->
+    <div class="modal hidden" id="deleteModal">
+        <div class="modal-bg"></div>
+        <div class="modal-box">
+            <div class="modal-emoji">🗑️</div>
+            <h3 data-i18n="modal_delete_title">Изтрий записа?</h3>
+            <p id="deleteModalText" data-i18n="modal_delete_text">Сигурен ли си?</p>
+            <div class="modal-btns">
+                <button class="mbtn-cancel" id="cancelDelete" data-i18n="modal_cancel">Отказ</button>
+                <button class="mbtn-danger" id="confirmDelete" data-i18n="modal_confirm_delete">Изтрий</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <p class="footer-copy">FuelGenius</p>
+        <nav class="footer-links" aria-label="Legal">
+            <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+            <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a>
+            <a href="cookies.html" target="_blank" rel="noopener">Cookies & Storage</a>
+            <button class="footer-manage-btn" id="managePrivacyBtn" type="button">Privacy Choices</button>
+        </nav>
+    </footer>
+
+    <!-- AdMob Banner placeholder -->
+    <div class="ad-banner" id="adBanner">
+        <span data-i18n="ad_placeholder">Рекламно пространство</span>
+    </div>
+
+
+    <div class="consent-banner hidden" id="consentBanner" role="dialog" aria-live="polite" aria-label="Privacy choices">
+        <div class="consent-banner-inner">
+            <div class="consent-copy">
+                <strong>Privacy choices</strong>
+                <p>FuelGenius can be prepared for analytics and ads. They stay off until you configure IDs and the user gives consent.</p>
+            </div>
+            <div class="consent-actions">
+                <button class="consent-btn secondary" id="consentRejectBtn" type="button">Reject optional</button>
+                <button class="consent-btn secondary" id="consentCustomizeBtn" type="button">Customize</button>
+                <button class="consent-btn primary" id="consentAcceptBtn" type="button">Accept all</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal hidden" id="consentModal">
+        <div class="modal-bg"></div>
+        <div class="modal-box consent-modal-box">
+            <div class="modal-emoji">🔐</div>
+            <h3>Privacy settings</h3>
+            <p>Strictly necessary storage is always on. Optional analytics and advertising remain disabled until explicitly allowed.</p>
+            <div class="consent-option">
+                <div>
+                    <strong>Necessary storage</strong>
+                    <span>Required for language, theme, saved history, and offline support.</span>
+                </div>
+                <span class="consent-chip always-on">Always on</span>
+            </div>
+            <label class="consent-option consent-toggle-row">
+                <div>
+                    <strong>Analytics</strong>
+                    <span>Enable measurement after you add a valid GA4/Firebase ID.</span>
+                </div>
+                <input type="checkbox" id="consentAnalyticsToggle">
+            </label>
+            <label class="consent-option consent-toggle-row">
+                <div>
+                    <strong>Advertising</strong>
+                    <span>Enable ads after you add a valid AdMob integration in the Android wrapper.</span>
+                </div>
+                <input type="checkbox" id="consentAdsToggle">
+            </label>
+            <div class="modal-btns">
+                <button class="mbtn-cancel" id="consentCloseBtn" type="button">Cancel</button>
+                <button class="mbtn-danger consent-save-btn" id="consentSaveBtn" type="button">Save choices</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toasts" id="toasts"></div>
+</div>
+<script src="release-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
