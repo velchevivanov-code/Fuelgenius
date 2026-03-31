@@ -16,8 +16,8 @@ window.FUELGENIUS_CONFIG = {
   ads: {
     enabled: false,
     provider: 'Google AdMob',
-    appId: 'ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy',
-    bannerUnitId: 'ca-app-pub-xxxxxxxxxxxxxxxx/zzzzzzzzzz',
+   appId: 'ca-app-pub-6031621247257222~3834930734',
+   bannerUnitId: 'ca-app-pub-6031621247257222/9485758377',
     personalizedAdsDefault: false
   },
   consent: {
